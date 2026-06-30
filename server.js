@@ -269,4 +269,4 @@ app.get('/api/vouchers', (req, res) => {
 });
 
 app.post('/api/vouchers/validate', (req, res) => {
-  const { code, subtotal } = req.body;        
+    const { code, subtotal } = req.body || {};
