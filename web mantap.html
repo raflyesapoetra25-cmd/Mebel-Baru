@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MĒBEL — Furniture Estetik</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config={theme:{extend:{fontFamily:{inter:['Inter','sans-serif']},colors:{brand:{400:'#e38655',500:'#dc6833',600:'#cd5228',700:'#a93f22'}}}}}
+</script>
+<style>
+*{font-family:'Inter',sans-serif}body{background:#050505}
+.glass{background:rgba(26,26,26,.6);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.05)}
+.herograd{background:linear-gradient(to right,#050505,rgba(5,5,5,.85),rgba(5,5,5,.3),transparent)}
+.herobot{background:linear-gradient(to top,#050505,transparent,transparent)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.anim-up{animation:fadeUp .4s ease-out forwards}
+.toast-in{animation:tIn .3s ease-out forwards}@keyframes tIn{from{opacity:0;transform:translateX(80px)}to{opacity:1;transform:translateX(0)}}
+.toast-out{animation:tOut .2s ease-in forwards}@keyframes tOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(80px)}}
+.marq{animation:marq 25s linear infinite}@keyframes marq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.navl{position:relative}.navl::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:2px;background:#cd5228;transition:width .3s}.navl:hover::after{width:100%}
+.modbg{background:rgba(0,0,0,.8);backdrop-filter:blur(4px)}
+input:focus,textarea:focus,select:focus{outline:none;border-color:#cd5228;box-shadow:0 0 0 2px rgba(205,82,40,.2)}
+.sticker{display:inline-block;background:#cd5228;color:#fff;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;padding:4px 12px;border-radius:999px;transform:rotate(-2deg)}
+.pill{display:inline-block;background:rgba(255,255,255,.06);color:#a3a3a3;font-size:11px;padding:6px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:all .15s}
+.pill:hover,.pill.on{background:rgba(205,82,40,.15);border-color:rgba(205,82,40,.3);color:#e38655}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#0a0a0a}::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+.tier{transition:transform .3s ease,box-shadow .3s ease}.tier:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(205,82,40,.08)}
+@keyframes pglow{0%,100%{box-shadow:0 0 10px rgba(205,82,40,.3)}50%{box-shadow:0 0 20px rgba(205,82,40,.5)}}.pglow{animation:pglow 2s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.marq,.anim-up,.pglow{animation:none!important}.tier:hover{transform:none}}
+.skeleton{background:linear-gradient(90deg,rgba(255,255,255,.03) 25%,rgba(255,255,255,.06) 50%,rgba(255,255,255,.03) 75%);background-size:400px 100%;animation:shimmer 1.5s infinite}@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+.mob-menu{transform:translateY(-100%);transition:transform .3s ease}.mob-menu.open{transform:translateY(0)}
+.star-btn{cursor:pointer;transition:color .15s}.star-btn:hover,.star-btn.on{color:#facc15}
+.pay-opt{cursor:pointer;transition:all .15s;border:1px solid rgba(255,255,255,.1)}.pay-opt:hover,.pay-opt.sel{border-color:rgba(205,82,40,.5);background:rgba(205,82,40,.05)}
+.step-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);transition:all .3s}.step-dot.on{background:#cd5228;width:24px;border-radius:4px}
+@keyframes spin{to{transform:rotate(360deg)}}.loader{animation:spin 1s linear infinite}
+.rev-pill{cursor:pointer;padding:4px 12px;border-radius:999px;font-size:11px;border:1px solid rgba(255,255,255,.08);color:#a3a3a3;transition:all .15s;background:transparent}
+.rev-pill:hover,.rev-pill.on{background:rgba(205,82,40,.15);border-color:rgba(205,82,40,.3);color:#e38655}
+.track-dot{position:relative;z-index:1;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s}
+.track-dot.done{background:#cd5228;color:#fff}.track-dot.now{background:#cd5228;color:#fff;box-shadow:0 0 12px rgba(205,82,40,.5)}.track-dot.wait{background:rgba(255,255,255,.08);color:#525252}
+.bar-fill{height:100%;border-radius:999px;transition:width .5s ease}
+</style>
+</head>
+<body class="text-white overflow-x-hidden">
+<div id="toasts" class="fixed top-20 right-4 z-[100] flex flex-col gap-3"></div>
+
+<nav class="fixed top-0 left-0 right-0 z-50 h-16 transition-all" style="background:rgba(5,5,5,.8);backdrop-filter:blur(12px)">
+<div class="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
+<a href="#" class="flex items-center gap-2"><div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center"><iconify-icon icon="lucide:lamp" width="16" class="text-white"></iconify-icon></div><span class="text-xl font-semibold">MĒBEL</span></a>
+<button id="btnHamburger" class="md:hidden text-neutral-400 hover:text-white transition"><iconify-icon icon="lucide:menu" width="22"></iconify-icon></button>
+<div class="hidden md:flex items-center gap-8">
+<a href="#home" class="navl text-sm font-medium text-neutral-300 hover:text-white transition">Home</a>
+<a href="#produk" class="navl text-sm font-medium text-neutral-300 hover:text-white transition">Shop</a>
+<button id="btnTrackNav" class="navl text-sm font-medium text-neutral-300 hover:text-white transition flex items-center gap-1"><iconify-icon icon="lucide:package" width="14"></iconify-icon>Lacak</button>
+<a href="#member" class="navl text-sm font-medium text-brand-400 transition flex items-center gap-1"><iconify-icon icon="lucide:crown" width="14"></iconify-icon>Member</a>
+<a href="#kontak" class="navl text-sm font-medium text-neutral-300 hover:text-white transition">Contact</a>
+</div>
+<div class="hidden md:flex items-center gap-3">
+<button id="btnSearch" class="text-neutral-400 hover:text-white transition"><iconify-icon icon="lucide:search" width="18"></iconify-icon></button>
+<button id="btnCart" class="relative text-neutral-400 hover:text-white transition"><iconify-icon icon="lucide:shopping-bag" width="18"></iconify-icon><span id="cartBadge" class="absolute -top-2 -right-2 bg-brand-600 text-white text-[10px] font-semibold w-4 h-4 rounded-full items-center justify-center" style="display:none">0</span></button>
+<button id="btnMember" class="flex items-center gap-1.5 bg-brand-600/10 text-brand-400 text-xs font-medium px-4 py-2 rounded-full border border-brand-600/20"><iconify-icon icon="lucide:user" width="14"></iconify-icon><span id="navName">Masuk</span></button>
+</div>
+<div class="flex md:hidden items-center gap-3">
+<button id="btnSearchMob" class="text-neutral-400 hover:text-white transition"><iconify-icon icon="lucide:search" width="18"></iconify-icon></button>
+<button id="btnCartMob" class="relative text-neutral-400 hover:text-white transition"><iconify-icon icon="lucide:shopping-bag" width="18"></iconify-icon><span id="cartBadgeMob" class="absolute -top-2 -right-2 bg-brand-600 text-white text-[10px] font-semibold w-4 h-4 rounded-full items-center justify-center" style="display:none">0</span></button>
+<button id="btnMemberMob" class="text-neutral-400 hover:text-white transition"><iconify-icon icon="lucide:user" width="18"></iconify-icon></button>
+</div>
+</div></nav>
+
+<div id="mobMenu" class="mob-menu fixed top-16 left-0 right-0 z-40 border-b border-white/5" style="background:rgba(5,5,5,.97);backdrop-filter:blur(16px)">
+<div class="px-6 py-6 flex flex-col gap-4">
+<a href="#home" class="mob-link text-base font-medium text-neutral-300 hover:text-white transition py-2">Home</a>
+<a href="#produk" class="mob-link text-base font-medium text-neutral-300 hover:text-white transition py-2">Shop</a>
+<button class="mob-track text-base font-medium text-neutral-300 hover:text-white transition py-2 text-left flex items-center gap-2"><iconify-icon icon="lucide:package" width="16"></iconify-icon>Lacak Pesanan</button>
+<a href="#member" class="mob-link text-base font-medium text-brand-400 transition py-2 flex items-center gap-2"><iconify-icon icon="lucide:crown" width="16"></iconify-icon>Member</a>
+<a href="#kontak" class="mob-link text-base font-medium text-neutral-300 hover:text-white transition py-2">Contact</a>
+</div></div>
+
+<div id="searchMod" class="fixed inset-0 z-[70] hidden modbg">
+<div class="max-w-2xl mx-auto mt-32 px-4 md:px-6"><div class="glass rounded-2xl p-6">
+<div class="flex items-center gap-4 mb-4"><iconify-icon icon="lucide:search" class="text-neutral-500" width="20"></iconify-icon><input id="searchInp" type="text" placeholder="Cari furniture..." class="flex-1 bg-transparent text-white text-lg placeholder:text-neutral-600 border-none outline-none"><button id="btnCloseSearch" class="text-neutral-500 hover:text-white"><iconify-icon icon="lucide:x" width="20"></iconify-icon></button></div>
+<div id="searchRes" class="border-t border-white/5 pt-4 hidden"><div id="searchList"></div></div>
+</div></div></div>
+
+<div id="cartSide" class="fixed top-0 right-0 bottom-0 w-full max-w-md z-[80] transform translate-x-full transition-transform duration-300">
+<div class="h-full flex flex-col border-l border-white/5" style="background:rgba(10,10,10,.97);backdrop-filter:blur(16px)">
+<div class="flex items-center justify-between p-6 border-b border-white/5"><h3 class="text-lg font-medium">🛒 Keranjang</h3><button id="btnCloseCart" class="text-neutral-400 hover:text-white"><iconify-icon icon="lucide:x" width="20"></iconify-icon></button></div>
+<div class="flex-1 overflow-y-auto p-6"><div id="cartEmpty" class="flex flex-col items-center justify-center h-full"><span class="text-4xl mb-4">🪑</span><p class="text-neutral-500 text-sm">Keranjang kosong</p></div><div id="cartItems"></div></div>
+<div id="cartFoot" class="border-t border-white/5 p-6 hidden">
+<div id="memberDiscount" class="flex justify-between mb-2 hidden"><span class="text-neutral-400 text-sm">Diskon Member</span><span id="discAmt" class="text-sm font-medium text-green-400">-Rp 0</span></div>
+<div class="flex justify-between mb-2"><span class="text-neutral-400 text-sm">Subtotal</span><span id="cartSub" class="text-sm font-medium">Rp 0</span></div>
+<div class="flex justify-between mb-2"><span class="text-neutral-400 text-sm">Ongkir</span><span class="text-sm font-medium text-brand-400">Gratis ✨</span></div>
+<div class="flex justify-between mb-6 pt-4 border-t border-white/5"><span class="font-medium">Total</span><span id="cartTot" class="text-lg font-semibold text-brand-400">Rp 0</span></div>
+<button id="btnCheckout" class="block w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium py-3.5 rounded-full text-center transition">Checkout Sekarang 🛍️</button>
+<p id="ptsEarn" class="text-center text-xs text-neutral-500 mt-3"></p>
+</div></div></div>
+<div id="cartOverlay" class="fixed inset-0 z-[75] bg-black/50 hidden"></div>
+
+<div id="checkMod" class="fixed inset-0 z-[90] hidden modbg">
+<div id="checkModBg" class="absolute inset-0"></div>
+<div class="relative z-10 max-w-2xl mx-auto mt-12 md:mt-20 px-4 max-h-[90vh] overflow-y-auto">
+<div class="glass rounded-2xl overflow-hidden" style="background:rgba(15,15,15,.97)">
+<div class="flex items-center justify-between p-6 border-b border-white/5"><h3 class="text-lg font-medium">Checkout</h3><button id="btnCloseCheck" class="text-neutral-500 hover:text-white"><iconify-icon icon="lucide:x" width="18"></iconify-icon></button></div>
+<div class="flex justify-center gap-2 py-4"><div id="sd1" class="step-dot on"></div><div id="sd2" class="step-dot"></div><div id="sd3" class="step-dot"></div></div>
+<div id="cStep1" class="p-6 md:p-8"><h4 class="text-xl font-medium mb-6">Alamat Pengiriman 📦</h4><form id="shipForm" class="space-y-4"><input id="sName" type="text" required placeholder="Nama Lengkap" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600"><input id="sPhone" type="tel" required placeholder="No. WhatsApp" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600"><textarea id="sAddr" rows="3" required placeholder="Alamat Lengkap" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 resize-none"></textarea><div class="grid grid-cols-2 gap-4"><input id="sCity" type="text" required placeholder="Kota" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600"><input id="sPost" type="text" required placeholder="Kode Pos" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600"></div><button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium py-3.5 rounded-full transition">Lanjut ke Pembayaran →</button></form></div>
+<div id="cStep2" class="p-6 md:p-8 hidden"><h4 class="text-xl font-medium mb-6">Metode Pembayaran 💳</h4><div class="space-y-3 mb-6"><div class="pay-opt rounded-xl p-4 flex items-center gap-4" data-pay="bca"><div class="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center text-blue-400 font-bold text-xs">BCA</div><div><p class="text-sm font-medium">Transfer BCA</p><p class="text-xs text-neutral-500">Virtual Account</p></div></div><div class="pay-opt rounded-xl p-4 flex items-center gap-4" data-pay="bri"><div class="w-10 h-10 rounded-lg bg-blue-800/20 flex items-center justify-center text-blue-300 font-bold text-xs">BRI</div><div><p class="text-sm font-medium">Transfer BRI</p><p class="text-xs text-neutral-500">Virtual Account</p></div></div><div class="pay-opt rounded-xl p-4 flex items-center gap-4" data-pay="gopay"><div class="w-10 h-10 rounded-lg bg-green-600/20 flex items-center justify-center text-green-400 font-bold text-xs">GPY</div><div><p class="text-sm font-medium">GoPay / OVO</p><p class="text-xs text-neutral-500">E-Wallet</p></div></div><div class="pay-opt rounded-xl p-4 flex items-center gap-4" data-pay="cod"><div class="w-10 h-10 rounded-lg bg-yellow-600/20 flex items-center justify-center text-yellow-400 font-bold text-xs">COD</div><div><p class="text-sm font-medium">Bayar di Tempat</p><p class="text-xs text-neutral-500">Cash on Delivery</p></div></div></div><div class="flex gap-3"><button id="btnBackShip" class="flex-1 border border-white/10 text-neutral-400 hover:text-white text-sm font-medium py-3.5 rounded-full transition">← Kembali</button><button id="btnPayNow" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium py-3.5 rounded-full transition">Bayar Sekarang</button></div></div>
+<div id="cStep3" class="p-6 md:p-8 hidden text-center py-16"><div class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6"><iconify-icon icon="lucide:check-circle" class="text-green-400" width="40"></iconify-icon></div><h4 class="text-2xl font-medium mb-2">Pembayaran Berhasil! 🎉</h4><p class="text-neutral-400 text-sm mb-6">Terima kasih sudah berbelanja di MĒBEL</p><div class="glass rounded-xl p-4 text-left mb-6 max-w-sm mx-auto"><p class="text-xs text-neutral-500 mb-1">No. Pesanan</p><p id="orderID" class="text-sm font-medium text-brand-400 mb-3">MBL-000000</p><p class="text-xs text-neutral-500 mb-1">Total Dibayar</p><p id="orderTotal" class="text-sm font-medium">Rp 0</p></div><p id="orderPoints" class="text-sm text-brand-400 mb-4"></p><div class="flex gap-3 justify-center"><button id="btnDoneCheck" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-8 py-3.5 rounded-full transition">Selesai</button><button id="btnToTrack" class="border border-white/10 text-neutral-400 hover:text-white text-sm font-medium px-8 py-3.5 rounded-full transition flex items-center gap-2"><iconify-icon icon="lucide:package" width="16"></iconify-icon>Lacak Pesanan</button></div></div>
+</div></div></div>
+
+<div id="trackMod" class="fixed inset-0 z-[90] hidden modbg">
+<div id="trackModBg" class="absolute inset-0"></div>
+<div class="relative z-10 max-w-3xl mx-auto mt-12 md:mt-16 px-4 max-h-[90vh] overflow-y-auto">
+<div class="glass rounded-2xl overflow-hidden" style="background:rgba(15,15,15,.97)">
+<div class="flex items-center justify-between p-6 border-b border-white/5"><h3 class="text-lg font-medium flex items-center gap-2"><iconify-icon icon="lucide:package" width="20" class="text-brand-400"></iconify-icon>Lacak Pesanan</h3><button id="btnCloseTrack" class="text-neutral-500 hover:text-white"><iconify-icon icon="lucide:x" width="18"></iconify-icon></button></div>
+<div id="trackList" class="p-6 md:p-8"></div>
+<div id="trackDetail" class="p-6 md:p-8 hidden"><button id="btnBackTrack" class="text-sm text-neutral-400 hover:text-white flex items-center gap-1 mb-6"><iconify-icon icon="lucide:arrow-left" width="14"></iconify-icon> Kembali</button><div id="trackDetailContent"></div></div>
+</div></div></div>
+
+<div id="memberMod" class="fixed inset-0 z-[90] hidden modbg"><div id="memberModBg" class="absolute inset-0"></div><div class="relative z-10 max-w-md mx-auto mt-24 px-4"><div class="glass rounded-2xl overflow-hidden" style="background:rgba(15,15,15,.97)"><div class="flex border-b border-white/5"><button id="tabLogin" class="flex-1 py-4 text-sm font-medium text-brand-400 border-b-2 border-brand-400">Masuk</button><button id="tabReg" class="flex-1 py-4 text-sm font-medium text-neutral-500 border-b-2 border-transparent">Daftar</button></div><div id="formLogin" class="p-8"><h3 class="text-xl font-medium text-center mb-6">Welcome Back! 👋</h3><div class="space-y-4"><input id="logEmail" type="email" placeholder="Email" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600"><input id="logPass" type="password" placeholder="Password" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600"><button id="btnLogin" class="w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium py-3.5 rounded-full transition">Masuk</button></div><p class="text-center text-xs text-neutral-600 mt-4">Belum punya? <button id="toReg" class="text-brand-400">Daftar yuk!</button></p></div><div id="formReg" class="p-8 hidden"><h3 class="text-xl font-medium text-center mb-2">Join the Club! 🎉</h3><p class="text-neutral-500 text-sm text-center mb-6">Langsung dapat 500 points!</p><div class="space-y-4"><input id="regName" type="text" placeholder="Nama" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600"><input id="regEmail" type="email" placeholder="Email" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600"><input id="regPhone" type="tel" placeholder="No. WA" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600"><input id="regPass" type="password" placeholder="Password (min 6)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600"><button id="btnReg" class="w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium py-3.5 rounded-full transition">Daftar 🎁</button></div><p class="text-center text-xs text-neutral-600 mt-4">Udah punya? <button id="toLog" class="text-brand-400">Masuk sini</button></p></div><button id="btnCloseMember" class="absolute top-4 right-4 text-neutral-500 hover:text-white"><iconify-icon icon="lucide:x" width="18"></iconify-icon></button></div></div></div>
+
+<div id="profMod" class="fixed inset-0 z-[90] hidden modbg"><div id="profModBg" class="absolute inset-0"></div><div class="relative z-10 max-w-lg mx-auto mt-20 px-4"><div class="glass rounded-2xl overflow-hidden" style="background:rgba(15,15,15,.97)"><div class="p-8"><div class="flex justify-between mb-6"><h3 class="text-xl font-medium">My Profile 👤</h3><button id="btnCloseProf" class="text-neutral-500 hover:text-white"><iconify-icon icon="lucide:x" width="18"></iconify-icon></button></div><div class="flex items-center gap-4 mb-6"><div id="pAvatar" class="w-16 h-16 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-2xl font-bold">M</div><div><p id="pName" class="text-lg font-medium">Member</p><span id="pTier" class="inline-flex items-center gap-1 text-xs font-medium px-3 py-1 rounded-full bg-brand-600/20 text-brand-400 border border-brand-600/30"><iconify-icon icon="lucide:award" width="12"></iconify-icon>Bronze</span></div></div><div class="bg-white/5 rounded-2xl p-6 mb-6"><div class="flex justify-between items-center mb-3"><span class="text-sm text-neutral-400">Points</span><span id="pPts" class="text-2xl font-bold text-brand-400">500</span></div><div class="bg-white/5 h-2 rounded-full overflow-hidden"><div id="pBar" class="h-full bg-gradient-to-r from-brand-600 to-brand-400 rounded-full transition-all duration-500" style="width:10%"></div></div><p id="pNext" class="text-xs text-neutral-500 mt-2"></p></div><div class="bg-white/5 rounded-2xl p-6 mb-6"><div class="grid grid-cols-3 gap-4 text-center"><div><p id="pOrders" class="text-xl font-bold text-white">0</p><p class="text-[10px] text-neutral-500 mt-1">Pesanan</p></div><div><p id="pSpend" class="text-xl font-bold text-white">0</p><p class="text-[10px] text-neutral-500 mt-1">Total Belanja</p></div><div><p id="pVouchers" class="text-xl font-bold text-white">1</p><p class="text-[10px] text-neutral-500 mt-1">Voucher</p></div></div></div><button id="btnProfTrack" class="w-full bg-white/5 hover:bg-white/10 border border-white/5 text-white text-sm font-medium py-3 rounded-xl transition flex items-center justify-center gap-2 mb-3"><iconify-icon icon="lucide:package" width="16" class="text-brand-400"></iconify-icon>Lacak Pesanan Saya</button><button id="btnLogout" class="w-full border border-white/10 text-neutral-400 hover:text-white text-sm font-medium py-3 rounded-full transition flex items-center justify-center gap-2"><iconify-icon icon="lucide:log-out" width="14"></iconify-icon>Keluar</button></div></div></div></div>
+
+<div id="prodMod" class="fixed inset-0 z-[90] hidden modbg"><div id="prodModBg" class="absolute inset-0"></div>
+<div class="relative z-10 max-w-4xl mx-auto mt-16 px-4"><div class="glass rounded-2xl overflow-hidden max-h-[85vh] overflow-y-auto" style="background:rgba(15,15,15,.97)">
+<div class="grid grid-cols-1 md:grid-cols-2">
+<div style="aspect-ratio:1/1"><img id="mImg" src="" class="w-full h-full object-cover"></div>
+<div class="p-8 flex flex-col"><div class="mb-4">
+<span id="mCat" class="text-xs font-medium uppercase tracking-widest text-brand-400"></span>
+<h3 id="mName" class="text-2xl font-medium mt-2 mb-2"></h3>
+<div class="flex items-center gap-2 mb-2"><div id="mStars" class="flex items-center gap-0.5 text-yellow-400"></div><span id="mRevCnt" class="text-xs text-neutral-500"></span></div>
+<p id="mPrice" class="text-xl font-semibold text-brand-400 mb-2"></p>
+<div id="mDiscRow" class="mb-2 hidden"><span class="text-xs text-green-400 bg-green-400/10 px-3 py-1 rounded-full">🏷️ Diskon member <span id="mDiscPct"></span>%</span></div>
+<p id="mStock" class="text-xs mb-3"></p>
+<p id="mDesc" class="text-neutral-400 text-sm font-light leading-relaxed mb-4"></p>
+<div id="mSpecs" class="bg-white/5 rounded-xl p-4 mb-6"></div>
+<div class="mb-6"><p class="text-[10px] text-neutral-500 uppercase tracking-wider mb-2">Jumlah</p><div class="flex items-center gap-3"><button id="mMinus" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center"><iconify-icon icon="lucide:minus" width="14"></iconify-icon></button><span id="mQty" class="text-lg font-medium w-8 text-center">1</span><button id="mPlus" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center"><iconify-icon icon="lucide:plus" width="14"></iconify-icon></button></div></div>
+</div><div class="flex gap-3 mt-auto"><button id="mAddCart" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium py-3.5 rounded-full transition flex items-center justify-center gap-2"><iconify-icon icon="lucide:shopping-bag" width="16"></iconify-icon>Tambah</button></div></div></div>
+<div class="border-t border-white/5 p-6 md:p-8">
+<div class="flex flex-col md:flex-row gap-8 mb-8"><div class="text-center md:text-left flex-shrink-0"><p id="revAvg" class="text-5xl font-bold text-white">0.0</p><div id="revAvgStars" class="flex items-center gap-0.5 justify-center md:justify-start my-2"></div><p id="revTotalCnt" class="text-xs text-neutral-500">0 ulasan</p></div><div class="flex-1 space-y-1.5" id="revBars"></div></div>
+<div class="flex flex-wrap gap-2 mb-6"><button class="rev-pill on" data-rf="all">Semua</button><button class="rev-pill" data-rf="5">5⭐</button><button class="rev-pill" data-rf="4">4⭐</button><button class="rev-pill" data-rf="3">3⭐</button><button class="rev-pill" data-rf="2">2⭐</button><button class="rev-pill" data-rf="1">1⭐</button><button class="rev-pill" data-rf="verified">✓ Verified</button><div class="ml-auto"><select id="revSort" class="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-neutral-400"><option value="newest">Terbaru</option><option value="highest">Tertinggi</option><option value="lowest">Terendah</option><option value="helpful">Helpful</option></select></div></div>
+<div id="revList" class="space-y-4 mb-8"></div>
+<div class="bg-white/5 rounded-xl p-5"><p class="text-sm font-medium mb-3">Tulis Penilaian ✍️</p><div class="flex gap-1 mb-3" id="revStars"><iconify-icon icon="lucide:star" class="star-btn text-neutral-600 text-xl" data-r="1"></iconify-icon><iconify-icon icon="lucide:star" class="star-btn text-neutral-600 text-xl" data-r="2"></iconify-icon><iconify-icon icon="lucide:star" class="star-btn text-neutral-600 text-xl" data-r="3"></iconify-icon><iconify-icon icon="lucide:star" class="star-btn text-neutral-600 text-xl" data-r="4"></iconify-icon><iconify-icon icon="lucide:star" class="star-btn text-neutral-600 text-xl" data-r="5"></iconify-icon></div><input id="revName" type="text" placeholder="Nama kamu" class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-neutral-600 mb-2"><textarea id="revText" rows="2" placeholder="Bagikan pengalamanmu..." class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-neutral-600 resize-none mb-3"></textarea><button id="btnSubmitRev" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-medium py-2 px-5 rounded-full transition">Kirim Penilaian</button></div>
+</div>
+<button id="btnCloseProd" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center text-neutral-400 hover:text-white"><iconify-icon icon="lucide:x" width="16"></iconify-icon></button>
+</div></div></div>
+
+<section id="home" class="relative min-h-screen flex items-center overflow-hidden"><img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=1920&q=80" class="absolute inset-0 w-full h-full object-cover opacity-50"><div class="herograd absolute inset-0"></div><div class="herobot absolute inset-0"></div><div class="relative z-10 max-w-7xl mx-auto px-6 pt-20 w-full"><div class="max-w-2xl"><span class="sticker">New Drop 2025 ✨</span><h1 class="text-4xl md:text-7xl font-medium leading-[1.05] tracking-tight mt-8 mb-6">Bikin Rumahmu<br><span class="text-brand-400">Estetik</span> Banget<br><span class="text-neutral-500 font-light">Gak Ribet.</span></h1><p class="text-neutral-400 text-base md:text-lg font-light leading-relaxed mb-10 max-w-md">Furniture pilihan yang bikin ruangan langsung aesthetic. 🤌</p><div class="flex flex-col sm:flex-row gap-4"><a href="#produk" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-8 py-3.5 rounded-full transition text-center flex items-center justify-center gap-2">Shop Sekarang <iconify-icon icon="lucide:arrow-right" width="16"></iconify-icon></a><a href="#member" class="border border-brand-600/30 text-brand-400 text-sm font-medium px-8 py-3.5 rounded-full transition text-center flex items-center justify-center gap-2"><iconify-icon icon="lucide:crown" width="16"></iconify-icon>Join Member</a></div></div></div></section>
+
+<section class="py-6 border-y border-white/5 overflow-hidden bg-[#0a0a0a]"><div class="flex whitespace-nowrap"><div class="marq flex items-center gap-12"><span class="text-neutral-700 text-sm">✦ Free Ongkir</span><span class="text-neutral-700 text-sm">✦ Garansi 5 Tahun</span><span class="text-neutral-700 text-sm">✦ Member Points</span><span class="text-neutral-700 text-sm">✦ 30 Hari Retur</span><span class="text-neutral-700 text-sm">✦ Free Ongkir</span><span class="text-neutral-700 text-sm">✦ Garansi 5 Tahun</span><span class="text-neutral-700 text-sm">✦ Member Points</span><span class="text-neutral-700 text-sm">✦ 30 Hari Retur</span></div></div></section>
+
+<section id="kategori" class="py-24"><div class="max-w-7xl mx-auto px-6"><div class="text-center mb-16"><p class="text-xs font-medium uppercase tracking-widest text-brand-400 mb-3">Pilih Vibe-mu</p><h2 class="text-3xl md:text-4xl font-medium tracking-tight">Kategori <span class="text-neutral-500">Favorit</span></h2></div><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><div class="group relative rounded-2xl overflow-hidden cursor-pointer" style="aspect-ratio:4/5"><img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80" class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 group-hover:opacity-40 transition-all duration-500"><div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div><div class="absolute bottom-0 left-0 right-0 p-8"><span class="inline-block text-xs font-medium uppercase tracking-widest border border-white/20 px-4 py-2 rounded-full mb-4">🛋 Living Room</span><h3 class="text-2xl font-medium">Sofa & Ruang Tamu</h3></div></div><div class="group relative rounded-2xl overflow-hidden cursor-pointer" style="aspect-ratio:4/5"><img src="https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=600&q=80" class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 group-hover:opacity-40 transition-all duration-500"><div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div><div class="absolute bottom-0 left-0 right-0 p-8"><span class="inline-block text-xs font-medium uppercase tracking-widest border border-white/20 px-4 py-2 rounded-full mb-4">🛏 Bedroom</span><h3 class="text-2xl font-medium">Kamar Tidur</h3></div></div><div class="group relative rounded-2xl overflow-hidden cursor-pointer" style="aspect-ratio:4/5"><img src="https://images.unsplash.com/photo-1617806118233-18e1de247200?w=600&q=80" class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 group-hover:opacity-40 transition-all duration-500"><div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div><div class="absolute bottom-0 left-0 right-0 p-8"><span class="inline-block text-xs font-medium uppercase tracking-widest border border-white/20 px-4 py-2 rounded-full mb-4">🍽 Dining</span><h3 class="text-2xl font-medium">Ruang Makan</h3></div></div></div></div></section>
+
+<section id="produk" class="py-24 bg-[#0a0a0a]"><div class="max-w-7xl mx-auto px-6"><div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6"><div><p class="text-xs font-medium uppercase tracking-widest text-brand-400 mb-3">Shop</p><h2 class="text-3xl md:text-4xl font-medium tracking-tight">Koleksi <span class="text-neutral-500">Terbaik</span> ✨</h2></div><div id="filterArea" class="flex gap-2 flex-wrap"></div></div><div id="gridArea" class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6"></div><div class="text-center mt-12"><button id="btnLoadMore" class="border border-white/10 text-neutral-400 hover:text-white text-sm font-medium px-8 py-3 rounded-full transition inline-flex items-center gap-2">Load More <iconify-icon icon="lucide:chevron-down" width="14"></iconify-icon></button></div></div></section>
+
+<section id="member" class="py-24 relative overflow-hidden"><div class="max-w-7xl mx-auto px-6 relative z-10"><div class="text-center mb-16"><div class="inline-flex items-center gap-2 bg-brand-600/10 border border-brand-600/20 text-brand-400 text-xs font-medium px-5 py-2 rounded-full mb-6"><iconify-icon icon="lucide:crown" width="14"></iconify-icon>Member Club</div><h2 class="text-3xl md:text-5xl font-medium tracking-tight mb-4">Join, Belanja, <span class="text-brand-400">Level Up!</span></h2></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-12"><div class="tier glass rounded-2xl p-6 border border-yellow-800/10"><p class="text-lg font-semibold text-yellow-600 mb-3">🥉 Bronze</p><div class="space-y-2 mb-4"><p class="text-sm text-neutral-300">✓ 500 pts</p><p class="text-sm text-neutral-300">✓ Diskon 5%</p></div><p class="text-[10px] text-neutral-600 text-center">0-4,999 pts</p></div><div class="tier glass rounded-2xl p-6 border border-gray-400/10"><p class="text-lg font-semibold text-gray-300 mb-3">🥈 Silver</p><div class="space-y-2 mb-4"><p class="text-sm text-neutral-300">✓ Semua Bronze +</p><p class="text-sm text-neutral-300">✓ Diskon 8%</p></div><p class="text-[10px] text-neutral-600 text-center">5,000-14,999 pts</p></div><div class="tier glass rounded-2xl p-6 border border-yellow-500/10 relative"><span class="sticker absolute -top-3 right-4" style="transform:rotate(2deg);background:linear-gradient(135deg,#daa520,#ffd700)">Popular 🔥</span><p class="text-lg font-semibold text-yellow-400 mb-3">🥇 Gold</p><div class="space-y-2 mb-4"><p class="text-sm text-neutral-300">✓ Diskon 12%</p></div><p class="text-[10px] text-neutral-600 text-center">15,000-29,999 pts</p></div><div class="tier glass rounded-2xl p-6 border border-gray-200/10 relative"><span class="sticker absolute -top-3 right-4" style="transform:rotate(-1deg);background:linear-gradient(135deg,#808080,#e5e4e2);color:#000">Elite ✨</span><p class="text-lg font-semibold text-gray-200 mb-3">💎 Platinum</p><div class="space-y-2 mb-4"><p class="text-sm text-neutral-300">✓ Diskon 18%</p></div><p class="text-[10px] text-neutral-600 text-center">30,000+ pts</p></div></div><div class="text-center"><button id="btnJoin" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-10 py-4 rounded-full transition inline-flex items-center gap-2 pglow"><iconify-icon icon="lucide:crown" width="18"></iconify-icon>Daftar Member — 500 Pts Gratis!</button></div></div></section>
+
+<section id="vibes" class="py-24"><div class="max-w-7xl mx-auto px-6"><div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"><div class="relative"><div class="rounded-2xl overflow-hidden" style="aspect-ratio:4/5"><img src="https://images.unsplash.com/photo-1631679706909-1844bbd07221?w=800&q=80" class="w-full h-full object-cover opacity-75"></div><div class="absolute -bottom-6 -right-6 glass rounded-xl p-6"><p class="text-3xl font-semibold text-brand-400">15+</p><p class="text-sm text-neutral-400 mt-1">Tahun</p></div></div><div><p class="text-xs font-medium uppercase tracking-widest text-brand-400 mb-3">Our Story</p><h2 class="text-3xl md:text-4xl font-medium tracking-tight mb-6">Dibuat dengan <span class="text-neutral-500">Cinta</span> 🤎</h2><div class="grid grid-cols-2 gap-5"><div class="flex items-start gap-3"><div class="w-10 h-10 rounded-xl bg-brand-600/10 flex items-center justify-center flex-shrink-0"><iconify-icon icon="lucide:shield-check" class="text-brand-400" width="18"></iconify-icon></div><p class="text-sm font-medium pt-2">Garansi 5 Tahun</p></div><div class="flex items-start gap-3"><div class="w-10 h-10 rounded-xl bg-brand-600/10 flex items-center justify-center flex-shrink-0"><iconify-icon icon="lucide:truck" class="text-brand-400" width="18"></iconify-icon></div><p class="text-sm font-medium pt-2">Free Ongkir</p></div><div class="flex items-start gap-3"><div class="w-10 h-10 rounded-xl bg-brand-600/10 flex items-center justify-center flex-shrink-0"><iconify-icon icon="lucide:palette" class="text-brand-400" width="18"></iconify-icon></div><p class="text-sm font-medium pt-2">Custom Design</p></div><div class="flex items-start gap-3"><div class="w-10 h-10 rounded-xl bg-brand-600/10 flex items-center justify-center flex-shrink-0"><iconify-icon icon="lucide:wrench" class="text-brand-400" width="18"></iconify-icon></div><p class="text-sm font-medium pt-2">Free Pasang</p></div></div></div></div></div></section>
+
+<section id="kontak" class="py-24"><div class="max-w-7xl mx-auto px-6"><div class="text-center mb-16"><p class="text-xs font-medium uppercase tracking-widest text-brand-400 mb-3">Contact & Feedback</p><h2 class="text-3xl md:text-4xl font-medium tracking-tight">Punya Pertanyaan atau <span class="text-neutral-500">Saran?</span></h2></div><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="glass rounded-2xl p-8"><h3 class="text-lg font-medium mb-6">Kirim Pesan ✉️</h3><form id="contactForm" class="space-y-4"><input name="nm" required placeholder="Nama" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600"><input name="ph" required placeholder="No. WA" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600"><textarea name="ms" rows="3" required placeholder="Pesan..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 resize-none"></textarea><button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium py-3.5 rounded-full transition">Kirim Pesan</button></form></div><div class="glass rounded-2xl p-8"><h3 class="text-lg font-medium mb-6">Saran & Kritik 📝</h3><form id="feedbackForm" class="space-y-4"><input id="fbName" type="text" required placeholder="Nama kamu" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600"><div class="flex gap-2" id="fbStars"><iconify-icon icon="lucide:star" class="star-btn text-neutral-600 text-2xl" data-fb="1"></iconify-icon><iconify-icon icon="lucide:star" class="star-btn text-neutral-600 text-2xl" data-fb="2"></iconify-icon><iconify-icon icon="lucide:star" class="star-btn text-neutral-600 text-2xl" data-fb="3"></iconify-icon><iconify-icon icon="lucide:star" class="star-btn text-neutral-600 text-2xl" data-fb="4"></iconify-icon><iconify-icon icon="lucide:star" class="star-btn text-neutral-600 text-2xl" data-fb="5"></iconify-icon></div><select id="fbType" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-neutral-400 appearance-none"><option value="saran">💡 Saran</option><option value="kritik">⚠️ Kritik</option><option value="pujian">👏 Pujian</option><option value="keluhan">😞 Keluhan</option></select><textarea id="fbText" rows="3" required placeholder="Tulis saran atau kritikmu..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 resize-none"></textarea><div><label class="rev-pill cursor-pointer inline-flex items-center gap-1.5"><iconify-icon icon="lucide:camera" width="14"></iconify-icon> Tambah Foto/Video</label><input type="file" id="fbFile" accept="image/*,video/mp4,video/webm" class="hidden"><p class="text-[10px] text-neutral-600 mt-1">Maks 2MB (JPG/PNG/MP4)</p></div><div id="fbMediaPreview" class="hidden"></div><button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium py-3.5 rounded-full transition">Kirim Feedback</button></form></div></div><div id="fbDisplay" class="mt-12 hidden"><h3 class="text-lg font-medium mb-6">Feedback Terbaru 💬</h3><div id="fbList" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div></div></div></section>
+
+<footer class="border-t border-white/5 bg-[#0a0a0a]"><div class="max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row justify-between items-center gap-4"><div class="flex items-center gap-2"><div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center"><iconify-icon icon="lucide:lamp" width="16" class="text-white"></iconify-icon></div><span class="text-xl font-semibold">MĒBEL</span></div><p class="text-xs text-neutral-600">© 2025 MĒBEL. Made with 🤎</p></div></footer>
+
+<script>
+window.onload=function(){
+var products=[
+{id:1,name:"Sofa L Japandi",cat:"sofa",price:8500000,img:"https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80",desc:"Sofa sudut Japandi, kayu jati, bantal premium.",badge:"Best Seller",initStock:8,specs:{Bahan:"Kayu Jati & Linen",Dimensi:"220x150x85 cm",Berat:"45 kg",Warna:"Natural / Grey"}},
+{id:2,name:"Meja Makan Solid",cat:"meja",price:12000000,img:"https://images.unsplash.com/photo-1617806118233-18e1de247200?w=600&q=80",desc:"Meja makan 6 kursi kayu jati.",badge:"Premium",initStock:4,specs:{Bahan:"Kayu Mahoni Solid",Dimensi:"160x90x75 cm",Berat:"35 kg",Warna:"Dark Walnut"}},
+{id:3,name:"Lemari 3 Pintu",cat:"lemari",price:7500000,img:"https://images.unsplash.com/photo-1558997519-83ea9252edf8?w=600&q=80",desc:"Lemari 3 pintu cermin full.",badge:"",initStock:12,specs:{Bahan:"MDF + Cermin",Dimensi:"180x60x200 cm",Berat:"60 kg",Warna:"Putih Polos"}},
+{id:4,name:"Kursi Rattan",cat:"kursi",price:3200000,img:"https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=600&q=80",desc:"Kursi rotan handmade 🌴",badge:"New",initStock:15,specs:{Bahan:"Rotan & Besi",Dimensi:"60x60x82 cm",Berat:"8 kg",Warna:"Natural"}},
+{id:5,name:"Sofa Bed Cloud",cat:"sofa",price:11000000,img:"https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=600&q=80",desc:"Sofa bed serasa awan ☁️",badge:"Hot",initStock:3,specs:{Bahan:"Velvet Premium",Dimensi:"210x160x85 cm",Berat:"55 kg",Warna:"Cream / Sage"}},
+{id:6,name:"Meja Kerja Standing",cat:"meja",price:4500000,img:"https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=600&q=80",desc:"Standing desk adjustable.",badge:"",initStock:10,specs:{Bahan:"MDF + Baja",Dimensi:"140x70x75-115 cm",Berat:"25 kg",Warna:"Oak / Hitam"}},
+{id:7,name:"Rak Buku Modular",cat:"lemari",price:5800000,img:"https://images.unsplash.com/photo-1594620302200-9a762244a156?w=600&q=80",desc:"Rak modular floating.",badge:"New",initStock:9,specs:{Bahan:"Plywood 18mm",Dimensi:"120x30x180 cm",Berat:"28 kg",Warna:"Natural Oak"}},
+{id:8,name:"Kursi Velvet",cat:"kursi",price:2800000,img:"https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=80",desc:"Kursi makan velvet.",badge:"",initStock:20,specs:{Bahan:"Velvet + Kayu",Dimensi:"50x55x82 cm",Berat:"6 kg",Warna:"Emerald / Terracotta"}},
+{id:9,name:"Bean Bag",cat:"sofa",price:2200000,img:"https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=600&q=80",desc:"Bean bag XL anti kempes.",badge:"Fave",initStock:25,specs:{Bahan:"Oxford Waterproof",Dimensi:"90x90 cm",Berat:"4 kg",Warna:"Abu / Navy"}},
+{id:10,name:"Meja TV Floating",cat:"meja",price:3800000,img:"https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=600&q=80",desc:"Meja TV floating.",badge:"",initStock:7,specs:{Bahan:"Plywood 15mm",Dimensi:"150x40x50 cm",Berat:"18 kg",Warna:"Walnut"}},
+{id:11,name:"Lemari Hias Kaca",cat:"lemari",price:9200000,img:"https://images.unsplash.com/photo-1595428774223-ef52624120d2?w=600&q=80",desc:"Cabinet + LED ✨",badge:"Premium",initStock:2,specs:{Bahan:"MDF + Kaca + LED",Dimensi:"100x40x180 cm",Berat:"40 kg",Warna:"Hitam Gold"}},
+{id:12,name:"Lampu Terracotta",cat:"dekorasi",price:890000,img:"https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?w=600&q=80",desc:"Lampu warm cozy 🧡",badge:"New",initStock:30,specs:{Bahan:"Keramik + Kain",Dimensi:"25x25x45 cm",Berat:"2.5 kg",Warna:"Terracotta"}},
+{id:13,name:"Wall Mirror",cat:"dekorasi",price:1450000,img:"https://images.unsplash.com/photo-1618220179428-22790b461013?w=600&q=80",desc:"Cermin bulat frame kayu.",badge:"",initStock:18,specs:{Bahan:"Kayu & Cermin",Dimensi:"Ø60 cm",Berat:"3 kg",Warna:"Natural"}},
+{id:14,name:"Bar Stool",cat:"kursi",price:1800000,img:"https://images.unsplash.com/photo-1503602642458-232111445657?w=600&q=80",desc:"Bar stool chrome.",badge:"",initStock:14,specs:{Bahan:"Chrome & PU Leather",Dimensi:"Ø40x75 cm",Berat:"5 kg",Warna:"Hitam / Putih"}},
+{id:15,name:"Side Table Marble",cat:"meja",price:2900000,img:"https://images.unsplash.com/photo-1532372576444-dda954194ad0?w=600&q=80",desc:"Marmer + gold legs 💅",badge:"Hot",initStock:6,specs:{Bahan:"Marmer & Besi Gold",Dimensi:"45x45x55 cm",Berat:"12 kg",Warna:"White Marble"}},
+{id:16,name:"Vas Keramik",cat:"dekorasi",price:650000,img:"https://images.unsplash.com/photo-1578500494198-246f612d3b3d?w=600&q=80",desc:"Set 3 vas earth tones.",badge:"",initStock:22,specs:{Bahan:"Keramik Glaze",Dimensi:"Ø15x25 cm",Berat:"1.5 kg",Warna:"Earth Tones"}}
+];
+
+var demoReviews={1:[{n:"Dian",r:5,t:"Super nyaman, kualitas premium!",verified:true,helpful:12,date:"2025-01-10"},{n:"Rizky",r:4,t:"Bagus tapi pengiriman lama.",verified:true,helpful:5,date:"2025-01-08"},{n:"Sari",r:5,t:"Warnanya sesuai foto!",verified:true,helpful:8,date:"2024-12-28"}],2:[{n:"Budi",r:5,t:"Kayunya tebal dan kokoh.",verified:true,helpful:9,date:"2025-01-12"}],5:[{n:"Tono",r:5,t:"Serasa awan!",verified:true,helpful:20,date:"2025-01-11"}]};
+
+var cart=[],curFilter="semua",showCount=8,modalQty=1,modalProd=null,selPayMethod="";
+var member=null,orders=[],reviews={},feedbacks=[],revFilter="all",revSort="newest";
+try{member=JSON.parse(localStorage.getItem("mebel_m"))}catch(e){}
+try{orders=JSON.parse(localStorage.getItem("mebel_orders"))}catch(e){orders=[]}
+try{var sv=JSON.parse(localStorage.getItem("mebel_rev"));reviews=sv&&Object.keys(sv).length>0?sv:demoReviews}catch(e){reviews=demoReviews}
+try{feedbacks=JSON.parse(localStorage.getItem("mebel_fb"))}catch(e){feedbacks=[]}
+
+var stockData={};
+try{var sd=JSON.parse(localStorage.getItem("mebel_stock"));if(sd&&Object.keys(sd).length===products.length)stockData=sd;else products.forEach(function(p){stockData[p.id]=p.initStock})}catch(e){products.forEach(function(p){stockData[p.id]=p.initStock})}
+function getStock(id){return stockData[id]||0}
+function saveStock(){localStorage.setItem("mebel_stock",JSON.stringify(stockData))}
+
+var TIER={bronze:{n:"Bronze",mn:0,mx:5000,disc:5},silver:{n:"Silver",mn:5000,mx:15000,disc:8},gold:{n:"Gold",mn:15000,mx:30000,disc:12},platinum:{n:"Platinum",mn:30000,mx:999999,disc:18}};
+var STATUS={dibuat:{n:"Pesanan Dibuat",icon:"lucide:file-check",desc:"Pesanan diterima"},diproses:{n:"Sedang Diproses",icon:"lucide:package",desc:"Barang dikemas"},dikirim:{n:"Dalam Pengiriman",icon:"lucide:truck",desc:"Sedang diantar"},selesai:{n:"Selesai",icon:"lucide:check-circle",desc:"Barang diterima"}};
+var STATUS_ORDER=["dibuat","diproses","dikirim","selesai"];
+
+function fmt(n){return"Rp "+n.toLocaleString("id-ID")}
+function fmtShort(n){return n>=1e6?(n/1e6).toFixed(1)+"jt":n>=1e3?(n/1e3).toFixed(0)+"rb":n.toString()}
+function getTier(p){return p>=3e4?"platinum":p>=15e3?"gold":p>=5e3?"silver":"bronze"}
+function getDiscPct(){return member?TIER[getTier(member.points)].disc:0}
+
+var openModals=[];
+function pushModal(id){if(openModals.indexOf(id)===-1)openModals.push(id);document.body.style.overflow="hidden"}
+function popModal(id){openModals=openModals.filter(function(m){return m!==id});if(!openModals.length)document.body.style.overflow=""}
+
+function msg(t){var c=document.getElementById("toasts"),d=document.createElement("div");d.className="toast-in glass rounded-xl p-4 flex items-center gap-3 min-w-[240px]";d.innerHTML='<iconify-icon icon="lucide:check-circle" style="color:#cd5228" width="16"></iconify-icon><span class="text-sm text-neutral-300">'+t+"</span>";c.appendChild(d);setTimeout(function(){d.className=d.className.replace("toast-in","toast-out");setTimeout(function(){d.remove()},200)},2500)}
+
+function getRevStats(pid){var list=reviews[pid]||[];if(!list.length)return{avg:0,cnt:0,bars:{5:0,4:0,3:0,2:0,1:0}};var s=list.reduce(function(a,b){return a+b.r},0),avg=(s/list.length).toFixed(1),bars={5:0,4:0,3:0,2:0,1:0};list.forEach(function(r){bars[r.r]++});return{avg:avg,cnt:list.length,bars:bars}}
+function starsSmall(v){var h="";for(var i=1;i<=5;i++)h+='<iconify-icon icon="lucide:star" class="'+(i<=Math.round(v)?"text-yellow-400":"text-neutral-700")+'" width="12"></iconify-icon>';return h}
+
+function stockHtml(stk){if(stk<=0)return'<span class="text-red-400 font-medium">Stok Habis</span>';if(stk<=5)return'<span class="text-yellow-400 font-medium">Sisa '+stk+'</span>';return'<span class="text-green-400">Stok '+stk+'</span>'}
+
+function render(){
+var list=curFilter==="semua"?products:products.filter(function(p){return p.cat===curFilter});
+var show=list.slice(0,showCount),disc=getDiscPct(),html="";
+for(var i=0;i<show.length;i++){
+var p=show[i],fp=disc>0?Math.round(p.price*(1-disc/100)):p.price,stk=getStock(p.id),st=getRevStats(p.id);
+html+='<div class="group cursor-pointer anim-up" style="animation-delay:'+i*0.03+'s" data-pid="'+p.id+'">';
+html+='<div class="relative rounded-2xl overflow-hidden mb-3" style="aspect-ratio:1/1"><div class="absolute inset-0 skeleton"></div>';
+html+='<img src="'+p.img+'" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-75 group-hover:scale-105 transition-all duration-500" loading="lazy" onload="this.previousElementSibling.style.display=\'none\'">';
+html+='<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>';
+if(p.badge)html+='<span class="absolute top-3 left-3 text-[10px] font-semibold uppercase tracking-wider bg-brand-600 text-white px-3 py-1 rounded-full">'+p.badge+'</span>';
+if(disc>0)html+='<span class="absolute top-3 right-3 text-[10px] font-semibold bg-green-500/80 text-white px-2 py-1 rounded-full">-'+disc+'%</span>';
+if(stk<=0)html+='<span class="absolute inset-0 bg-black/60 flex items-center justify-center text-sm font-semibold text-red-400 z-10">SOLD OUT</span>';
+html+='<div class="absolute bottom-0 left-0 right-0 p-4 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">';
+if(stk>0)html+='<button class="addbtn w-full bg-white/95 text-black text-xs font-medium py-2.5 rounded-full hover:bg-white transition flex items-center justify-center gap-2" data-id="'+p.id+'"><iconify-icon icon="lucide:shopping-bag" width="13"></iconify-icon>+ Keranjang</button>';
+html+='</div></div>';
+html+='<p class="text-[10px] text-neutral-600 uppercase tracking-wider">'+p.cat+'</p>';
+html+='<h3 class="text-sm font-medium mt-0.5 mb-1 group-hover:text-brand-400 transition truncate">'+p.name+'</h3>';
+html+='<div class="flex items-center gap-1.5 mb-1">'+starsSmall(st.avg)+'<span class="text-[10px] text-neutral-500">('+st.cnt+')</span></div>';
+html+='<div class="flex items-center justify-between">';
+if(disc>0){html+='<div><p class="text-xs text-neutral-600 line-through">'+fmt(p.price)+'</p><p class="text-sm font-semibold text-brand-400">'+fmt(fp)+'</p></div>'}
+else html+='<p class="text-sm font-semibold text-brand-400">'+fmt(p.price)+'</p>';
+html+='<span class="text-[10px] '+((stk<=0)?'text-red-400':(stk<=5)?'text-yellow-400':'text-green-400')+'">'+(stk<=0?'Habis':'Sisa '+stk)+'</span></div></div>';
+}
+document.getElementById("gridArea").innerHTML=html;
+document.getElementById("btnLoadMore").style.display=show.length<list.length?"":"none";
+}
+
+document.getElementById("gridArea").addEventListener("click",function(e){
+var ab=e.target.closest(".addbtn");if(ab){e.stopPropagation();addCart(Number(ab.getAttribute("data-id")));return}
+var cd=e.target.closest("[data-pid]");if(cd)openProd(Number(cd.getAttribute("data-pid")));
+});
+document.getElementById("btnLoadMore").addEventListener("click",function(){showCount+=4;render()});
+
+var filters=["semua","sofa","meja","lemari","kursi","dekorasi"],fArea=document.getElementById("filterArea");
+for(var i=0;i<filters.length;i++){(function(name){
+var btn=document.createElement("button");btn.className="pill"+(name==="semua"?" on":"");
+btn.textContent=name==="semua"?"Semua":name.charAt(0).toUpperCase()+name.slice(1);
+btn.addEventListener("click",function(){fArea.querySelectorAll(".pill").forEach(function(b){b.classList.remove("on")});btn.classList.add("on");curFilter=name;showCount=8;render()});
+fArea.appendChild(btn);
+})(filters[i])}
+
+function renderRevSection(pid){
+var st=getRevStats(pid),list=reviews[pid]||[];
+document.getElementById("revAvg").textContent=st.avg;
+document.getElementById("revAvgStars").innerHTML=starsSmall(st.avg);
+document.getElementById("revTotalCnt").textContent=st.cnt+" ulasan";
+var bh="";for(var b=5;b>=1;b--){var pct=st.cnt>0?Math.round(st.bars[b]/st.cnt*100):0;bh+='<div class="flex items-center gap-2"><span class="text-xs text-neutral-500 w-3">'+b+'</span><iconify-icon icon="lucide:star" class="text-yellow-400" width="10"></iconify-icon><div class="flex-1 bg-white/5 h-2 rounded-full overflow-hidden"><div class="bar-fill bg-yellow-400" style="width:'+pct+'%"></div></div><span class="text-[10px] text-neutral-600 w-6 text-right">'+st.bars[b]+'</span></div>'}
+document.getElementById("revBars").innerHTML=bh;
+var filtered=list;
+if(revFilter==="verified")filtered=list.filter(function(r){return r.verified});
+else if(revFilter!=="all")filtered=list.filter(function(r){return r.r===Number(revFilter)});
+if(revSort==="highest")filtered.sort(function(a,b){return b.r-a.r});else if(revSort==="lowest")filtered.sort(function(a,b){return a.r-b.r});else if(revSort==="helpful")filtered.sort(function(a,b){return(b.helpful||0)-(a.helpful||0)});else filtered.sort(function(a,b){return new Date(b.date)-new Date(a.date)});
+var rh="";if(!filtered.length)rh='<p class="text-neutral-600 text-sm text-center py-6">Belum ada penilaian.</p>';
+else for(var i=0;i<filtered.length;i++){var rv=filtered[i];rh+='<div class="bg-white/5 rounded-xl p-4"><div class="flex items-start justify-between mb-2"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-brand-600/20 flex items-center justify-center text-xs font-bold text-brand-400 flex-shrink-0">'+rv.n.charAt(0)+'</div><div><div class="flex items-center gap-2"><span class="text-sm font-medium">'+rv.n+'</span>';if(rv.verified)rh+='<span class="inline-flex items-center gap-0.5 text-[10px] font-medium text-green-400 bg-green-400/10 px-2 py-0.5 rounded-full"><iconify-icon icon="lucide:badge-check" width="10"></iconify-icon>Verified</span>';rh+='</div><div class="flex items-center gap-1 mt-0.5">';for(var s=1;s<=5;s++)rh+='<iconify-icon icon="lucide:star" class="'+(s<=rv.r?"text-yellow-400":"text-neutral-700")+'" width="10"></iconify-icon>';rh+='<span class="text-[10px] text-neutral-600 ml-1">'+rv.date+'</span></div></div></div>';rh+='<button class="helpbtn text-neutral-600 hover:text-brand-400 transition flex items-center gap-1 text-xs flex-shrink-0" data-rv="'+i+'" data-pid="'+pid+'"><iconify-icon icon="lucide:thumbs-up" width="12"></iconify-icon><span>'+(rv.helpful||0)+'</span></button></div><p class="text-sm text-neutral-300 font-light leading-relaxed">'+rv.t+'</p></div>'}
+document.getElementById("revList").innerHTML=rh;
+}
+
+function openProd(id){
+var p=products.find(function(x){return x.id===id});if(!p)return;
+modalProd=p;modalQty=1;var stk=getStock(p.id);
+document.getElementById("mImg").src=p.img;document.getElementById("mCat").textContent=p.cat;document.getElementById("mName").textContent=p.name;
+var disc=getDiscPct();
+if(disc>0){var fp=Math.round(p.price*(1-disc/100));document.getElementById("mPrice").innerHTML='<span class="text-neutral-600 line-through text-sm mr-2">'+fmt(p.price)+'</span>'+fmt(fp);document.getElementById("mDiscRow").classList.remove("hidden");document.getElementById("mDiscPct").textContent=disc}
+else{document.getElementById("mPrice").textContent=fmt(p.price);document.getElementById("mDiscRow").classList.add("hidden")}
+document.getElementById("mStock").innerHTML=stockHtml(stk);
+document.getElementById("mDesc").textContent=p.desc;
+var specH='<p class="text-[10px] text-neutral-500 uppercase tracking-wider mb-2">Spesifikasi</p><div class="space-y-1.5">';
+for(var k in p.specs)specH+='<div class="flex justify-between"><span class="text-xs text-neutral-500">'+k+'</span><span class="text-xs text-neutral-300">'+p.specs[k]+'</span></div>';
+specH+='</div>';document.getElementById("mSpecs").innerHTML=specH;
+document.getElementById("mQty").textContent="1";
+var st=getRevStats(p.id);document.getElementById("mStars").innerHTML=starsSmall(st.avg);document.getElementById("mRevCnt").textContent=st.cnt>0?"("+st.avg+" • "+st.cnt+" ulasan)":"(Belum ada ulasan)";
+document.getElementById("mAddCart").disabled=stk<=0;document.getElementById("mAddCart").className=stk<=0?"flex-1 bg-neutral-700 text-neutral-400 text-sm font-medium py-3.5 rounded-full cursor-not-allowed flex items-center justify-center gap-2":"flex-1 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium py-3.5 rounded-full transition flex items-center justify-center gap-2";
+if(stk<=0)document.getElementById("mAddCart").innerHTML='<iconify-icon icon="lucide:x-circle" width="16"></iconify-icon>Stok Habis';
+else document.getElementById("mAddCart").innerHTML='<iconify-icon icon="lucide:shopping-bag" width="16"></iconify-icon>Tambah';
+revFilter="all";revSort="newest";document.querySelectorAll(".rev-pill").forEach(function(p){p.classList.toggle("on",p.getAttribute("data-rf")==="all")});document.getElementById("revSort").value="newest";
+renderRevSection(p.id);document.getElementById("prodMod").classList.remove("hidden");pushModal("prodMod");
+}
+function closeProdM(){document.getElementById("prodMod").classList.add("hidden");popModal("prodMod");modalProd=null}
+document.getElementById("btnCloseProd").addEventListener("click",closeProdM);document.getElementById("prodModBg").addEventListener("click",closeProdM);
+document.getElementById("mMinus").addEventListener("click",function(){if(modalQty>1){modalQty--;document.getElementById("mQty").textContent=modalQty}});
+document.getElementById("mPlus").addEventListener("click",function(){var stk=getStock(modalProd.id);if(modalQty<stk){modalQty++;document.getElementById("mQty").textContent=modalQty}else{msg("Stok tidak cukup!")}});
+document.getElementById("mAddCart").addEventListener("click",function(){if(!modalProd||getStock(modalProd.id)<=0)return;for(var i=0;i<modalQty;i++)addCart(modalProd.id,true);msg(modalProd.name+" (x"+modalQty+") ditambahkan! 🛒");closeProdM()});
+
+document.querySelectorAll(".rev-pill").forEach(function(pill){pill.addEventListener("click",function(){document.querySelectorAll(".rev-pill").forEach(function(p){p.classList.remove("on")});pill.classList.add("on");revFilter=pill.getAttribute("data-rf");if(modalProd)renderRevSection(modalProd.id)})});
+document.getElementById("revSort").addEventListener("change",function(){revSort=this.value;if(modalProd)renderRevSection(modalProd.id)});
+document.getElementById("revList").addEventListener("click",function(e){var hb=e.target.closest(".helpbtn");if(!hb)return;var idx=Number(hb.getAttribute("data-rv")),pid=Number(hb.getAttribute("data-pid"));if(!reviews[pid]||!reviews[pid][idx])return;reviews[pid][idx].helpful=(reviews[pid][idx].helpful||0)+1;localStorage.setItem("mebel_rev",JSON.stringify(reviews));renderRevSection(pid);msg("Terima kasih! 👍")});
+
+var selRevStar=0;
+document.getElementById("revStars").addEventListener("click",function(e){var btn=e.target.closest(".star-btn");if(!btn)return;selRevStar=Number(btn.getAttribute("data-r"));this.querySelectorAll(".star-btn").forEach(function(b){b.classList.toggle("on",Number(b.getAttribute("data-r"))<=selRevStar)})});
+document.getElementById("btnSubmitRev").addEventListener("click",function(){
+var n=document.getElementById("revName").value.trim(),t=document.getElementById("revText").value.trim();
+if(!n||selRevStar===0||!t){msg("Lengkapi semua!");return}if(!modalProd)return;
+var isV=false;if(member&&orders)orders.forEach(function(o){o.items.forEach(function(it){if(it.id===modalProd.id&&o.status==="selesai")isV=true})});
+if(!reviews[modalProd.id])reviews[modalProd.id]=[];
+reviews[modalProd.id].push({n:n,r:selRevStar,t:t,verified:isV,helpful:0,date:new Date().toISOString().slice(0,10)});
+localStorage.setItem("mebel_rev",JSON.stringify(reviews));renderRevSection(modalProd.id);render();
+document.getElementById("revName").value="";document.getElementById("revText").value="";selRevStar=0;document.querySelectorAll("#revStars .star-btn").forEach(function(b){b.classList.remove("on")});msg("Penilaian terkirim! ⭐");
+});
+
+function addCart(id,silent){var p=products.find(function(x){return x.id===id});if(!p)return;if(getStock(p.id)<=0){msg("Stok habis!");return}var f=cart.find(function(c){return c.id===id});if(f){if(f.qty>=getStock(p.id)){msg("Stok tidak cukup!");return}f.qty++}else cart.push({id:p.id,name:p.name,price:p.price,img:p.img,qty:1});updCart();if(!silent)msg(p.name+" ditambahkan! 🛒")}
+function delCart(id){cart=cart.filter(function(c){return c.id!==id});updCart()}
+function chgQty(id,d){var i=cart.find(function(c){return c.id===id});if(!i)return;var nq=i.qty+d;if(nq<=0){delCart(id);return}if(nq>getStock(id)){msg("Stok tidak cukup!");return}i.qty=nq;updCart()}
+function updCart(){
+var rawSum=cart.reduce(function(s,c){return s+c.price*c.qty},0),totalQty=cart.reduce(function(s,c){return s+c.qty},0);
+var disc=getDiscPct(),discAmt=disc>0?Math.round(rawSum*disc/100):0,finalSum=rawSum-discAmt;
+function ub(el){if(totalQty>0){el.textContent=totalQty;el.style.display="flex"}else el.style.display="none"}
+ub(document.getElementById("cartBadge"));ub(document.getElementById("cartBadgeMob"));
+var el2=document.getElementById("cartItems"),emp=document.getElementById("cartEmpty"),foot=document.getElementById("cartFoot");
+if(cart.length>0){emp.style.display="none";foot.classList.remove("hidden");var dr=document.getElementById("memberDiscount");if(disc>0){dr.classList.remove("hidden");document.getElementById("discAmt").textContent="-"+fmt(discAmt)}else dr.classList.add("hidden");
+var h="";for(var i=0;i<cart.length;i++){var c=cart[i],cp=disc>0?Math.round(c.price*(1-disc/100)):c.price;
+h+='<div class="flex gap-3 p-3 rounded-xl bg-white/5 mb-3"><img src="'+c.img+'" class="w-14 h-14 object-cover rounded-lg flex-shrink-0"><div class="flex-1 min-w-0"><h4 class="text-sm font-medium truncate">'+c.name+'</h4><p class="text-xs text-brand-400 font-medium">'+fmt(cp)+'</p><div class="flex items-center gap-2 mt-1"><button class="cqm w-6 h-6 rounded bg-white/10 flex items-center justify-center" data-cid="'+c.id+'" data-dir="-1"><iconify-icon icon="lucide:minus" width="10"></iconify-icon></button><span class="text-xs font-medium">'+c.qty+'</span><button class="cqm w-6 h-6 rounded bg-white/10 flex items-center justify-center" data-cid="'+c.id+'" data-dir="1"><iconify-icon icon="lucide:plus" width="10"></iconify-icon></button><button class="cdl ml-auto text-neutral-600 hover:text-brand-400" data-cid="'+c.id+'"><iconify-icon icon="lucide:trash-2" width="12"></iconify-icon></button></div></div></div>'}
+el2.innerHTML=h;document.getElementById("cartSub").textContent=fmt(rawSum);document.getElementById("cartTot").textContent=fmt(finalSum);
+var pe=Math.round(finalSum/10000);document.getElementById("ptsEarn").textContent=member?"Kamu akan dapat "+pe+" pts 🎯":"Daftar member untuk dapat points 🎯";
+}else{emp.style.display="";foot.classList.add("hidden");el2.innerHTML=""}
+}
+document.getElementById("cartItems").addEventListener("click",function(e){var qm=e.target.closest(".cqm");if(qm){chgQty(Number(qm.getAttribute("data-cid")),Number(qm.getAttribute("data-dir")));return}var dl=e.target.closest(".cdl");if(dl)delCart(Number(dl.getAttribute("data-cid")))});
+function openCart(){document.getElementById("cartSide").classList.remove("translate-x-full");document.getElementById("cartOverlay").classList.remove("hidden");pushModal("cart")}
+function closeCartM(){document.getElementById("cartSide").classList.add("translate-x-full");document.getElementById("cartOverlay").classList.add("hidden");popModal("cart")}
+document.getElementById("btnCart").addEventListener("click",openCart);document.getElementById("btnCartMob").addEventListener("click",openCart);
+document.getElementById("btnCloseCart").addEventListener("click",closeCartM);document.getElementById("cartOverlay").addEventListener("click",closeCartM);
+
+function openCheckout(){if(!cart.length){msg("Keranjang kosong!");return}closeCartM();
+document.getElementById("cStep1").classList.remove("hidden");document.getElementById("cStep2").classList.add("hidden");document.getElementById("cStep3").classList.add("hidden");
+document.getElementById("sd1").className="step-dot on";document.getElementById("sd2").className="step-dot";document.getElementById("sd3").className="step-dot";
+selPayMethod="";document.querySelectorAll(".pay-opt").forEach(function(o){o.classList.remove("sel")});
+if(member){document.getElementById("sName").value=member.name||"";document.getElementById("sPhone").value=member.phone||""}
+document.getElementById("checkMod").classList.remove("hidden");pushModal("checkMod")}
+function closeCheckout(){document.getElementById("checkMod").classList.add("hidden");popModal("checkMod")}
+document.getElementById("btnCheckout").addEventListener("click",openCheckout);
+document.getElementById("btnCloseCheck").addEventListener("click",closeCheckout);document.getElementById("checkModBg").addEventListener("click",closeCheckout);
+document.getElementById("shipForm").addEventListener("submit",function(e){e.preventDefault();document.getElementById("cStep1").classList.add("hidden");document.getElementById("cStep2").classList.remove("hidden");document.getElementById("sd1").className="step-dot";document.getElementById("sd2").className="step-dot on"});
+document.getElementById("btnBackShip").addEventListener("click",function(){document.getElementById("cStep2").classList.add("hidden");document.getElementById("cStep1").classList.remove("hidden");document.getElementById("sd2").className="step-dot";document.getElementById("sd1").className="step-dot on"});
+document.querySelectorAll(".pay-opt").forEach(function(opt){opt.addEventListener("click",function(){document.querySelectorAll(".pay-opt").forEach(function(o){o.classList.remove("sel")});opt.classList.add("sel");selPayMethod=opt.getAttribute("data-pay")})});
+
+document.getElementById("btnPayNow").addEventListener("click",function(){
+if(!selPayMethod){msg("Pilih metode pembayaran!");return}var btn=this;btn.disabled=true;btn.innerHTML='<iconify-icon icon="lucide:loader-2" class="loader" width="16"></iconify-icon> Memproses...';
+setTimeout(function(){
+var rawSum=cart.reduce(function(s,c){return s+c.price*c.qty},0),disc=getDiscPct(),discAmt=disc>0?Math.round(rawSum*disc/100):0,finalSum=rawSum-discAmt,ptsEarned=Math.round(finalSum/10000);
+var oid="MBL-"+Date.now().toString().slice(-6);
+var order={id:oid,ts:Date.now(),items:cart.slice().map(function(c){return{id:c.id,name:c.name,price:c.price,qty:c.qty,img:c.img}}),total:finalSum,status:"dibuat",address:{name:document.getElementById("sName").value,phone:document.getElementById("sPhone").value,addr:document.getElementById("sAddr").value,city:document.getElementById("sCity").value,post:document.getElementById("sPost").value},payment:selPayMethod};
+orders.push(order);localStorage.setItem("mebel_orders",JSON.stringify(orders));
+cart.forEach(function(c){stockData[c.id]=Math.max(0,(stockData[c.id]||0)-c.qty)});saveStock();
+if(member){var oldT=getTier(member.points);member.points+=ptsEarned;member.orders=(member.orders||0)+1;member.totalSpend=(member.totalSpend||0)+finalSum;if(member.orders%3===0)member.vouchers=(member.vouchers||0)+1;var newT=getTier(member.points);localStorage.setItem("mebel_m",JSON.stringify(member));updNav();render();if(newT!==oldT)msg("🎉 Level up! "+TIER[newT].n+"!")}
+document.getElementById("cStep2").classList.add("hidden");document.getElementById("cStep3").classList.remove("hidden");document.getElementById("sd2").className="step-dot";document.getElementById("sd3").className="step-dot on";
+document.getElementById("orderID").textContent=oid;document.getElementById("orderTotal").textContent=fmt(finalSum);
+document.getElementById("orderPoints").textContent=member?"+"+ptsEarned+" points! 🎯":"";
+cart=[];updCart();render();btn.disabled=false;btn.innerHTML="Bayar Sekarang";
+},2000)});
+document.getElementById("btnDoneCheck").addEventListener("click",function(){closeCheckout();msg("Terima kasih! 🛍️")});
+document.getElementById("btnToTrack").addEventListener("click",function(){closeCheckout();openTrackMod()});
+
+function openTrackMod(){renderTrackList();document.getElementById("trackList").classList.remove("hidden");document.getElementById("trackDetail").classList.add("hidden");document.getElementById("trackMod").classList.remove("hidden");pushModal("trackMod")}
+function closeTrackMod(){document.getElementById("trackMod").classList.add("hidden");popModal("trackMod")}
+function renderTrackList(){var el=document.getElementById("trackList");if(!orders.length){el.innerHTML='<div class="text-center py-16"><iconify-icon icon="lucide:package" class="text-neutral-700" width="48"></iconify-icon><p class="text-neutral-500 text-sm mt-4">Belum ada pesanan</p></div>';return}
+var h='<div class="space-y-4">';for(var i=orders.length-1;i>=0;i--){var o=orders[i],st=STATUS[o.status],sc=o.status==="selesai"?"text-green-400":o.status==="dibuat"?"text-yellow-400":"text-brand-400";
+h+='<div class="bg-white/5 rounded-xl p-5 cursor-pointer hover:bg-white/[.07] transition" data-oid="'+o.id+'"><div class="flex items-center justify-between mb-3"><div><p class="text-sm font-medium text-brand-400">'+o.id+'</p><p class="text-[10px] text-neutral-600">'+new Date(o.ts).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"})+'</p></div><span class="inline-flex items-center gap-1 text-xs font-medium '+sc+'"><iconify-icon icon="'+st.icon+'" width="12"></iconify-icon>'+st.n+'</span></div><div class="flex items-center gap-2 mb-3">';
+for(var j=0;j<Math.min(o.items.length,3);j++)h+='<img src="'+o.items[j].img+'" class="w-10 h-10 rounded-lg object-cover">';
+if(o.items.length>3)h+='<span class="text-xs text-neutral-500">+'+(o.items.length-3)+'</span>';
+h+='</div><div class="flex items-center justify-between"><p class="text-sm font-medium">'+fmt(o.total)+'</p><span class="text-xs text-neutral-500">'+o.items.length+' item</span></div></div>'}
+h+='</div><div class="mt-6 text-center"><button id="btnSimProgress" class="text-xs text-neutral-600 hover:text-neutral-400 transition underline">⚡ Simulasi progres (Demo)</button></div>';el.innerHTML=h}
+document.getElementById("trackList").addEventListener("click",function(e){var card=e.target.closest("[data-oid]");if(card)openTrackDetail(card.getAttribute("data-oid"));var sim=e.target.closest("#btnSimProgress");if(sim){if(!orders.length){msg("Belum ada pesanan!");return}var last=orders[orders.length-1],ci=STATUS_ORDER.indexOf(last.status);if(ci<STATUS_ORDER.length-1){last.status=STATUS_ORDER[ci+1];localStorage.setItem("mebel_orders",JSON.stringify(orders));msg("Status: "+STATUS[last.status].n+" ⏩");renderTrackList()}else msg("Sudah selesai! 🎉")}});
+
+function openTrackDetail(oid){var o=orders.find(function(x){return x.id===oid});if(!o)return;var curIdx=STATUS_ORDER.indexOf(o.status),h='<div class="mb-8"><div class="flex items-center justify-between mb-4"><p class="text-lg font-medium text-brand-400">'+o.id+'</p><p class="text-xs text-neutral-500">'+new Date(o.ts).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})+'</p></div><div class="space-y-0">';
+for(var i=0;i<STATUS_ORDER.length;i++){var s=STATUS_ORDER[i],isDone=i<curIdx,isCur=i===curIdx,dotCls=isCur?"now":isDone?"done":"wait",txtCls=isCur?"text-white":isDone?"text-neutral-300":"text-neutral-600";
+h+='<div class="flex items-start gap-4"><div class="track-dot '+dotCls+'"><iconify-icon icon="'+s.icon+'" width="14"></iconify-icon></div><div class="pt-1"><p class="text-sm font-medium '+txtCls+'">'+s.n+(isCur?' 🔵':'')+'</p><p class="text-xs '+(isDone||isCur?"text-neutral-500":"text-neutral-700")+'">'+s.desc+'</p></div></div>';
+if(i<STATUS_ORDER.length-1){var lnCls=isDone?"bg-brand-600":"bg-white/10";h+='<div class="ml-[15px] border-l-2 '+lnCls+'" style="height:40px"></div>'}}
+h+='</div></div>';
+h+='<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"><div class="bg-white/5 rounded-xl p-4"><p class="text-[10px] text-neutral-500 uppercase tracking-wider mb-2">Alamat</p><p class="text-sm font-medium">'+o.address.name+'</p><p class="text-xs text-neutral-400">'+o.address.addr+'</p><p class="text-xs text-neutral-400">'+o.address.city+' '+o.address.post+'</p></div>';
+var pl={bca:"Transfer BCA",bri:"Transfer BRI",gopay:"GoPay/OVO",cod:"COD"};
+h+='<div class="bg-white/5 rounded-xl p-4"><p class="text-[10px] text-neutral-500 uppercase tracking-wider mb-2">Pembayaran</p><p class="text-sm font-medium">'+(pl[o.payment]||o.payment)+'</p><p class="text-xs text-neutral-400">Total: '+fmt(o.total)+'</p></div></div>';
+h+='<div class="bg-white/5 rounded-xl p-4"><p class="text-[10px] text-neutral-500 uppercase tracking-wider mb-3">Barang</p>';
+for(var j=0;j<o.items.length;j++){var it=o.items[j];h+='<div class="flex items-center gap-3 py-2'+(j<o.items.length-1?" border-b border-white/5":"")+'"><img src="'+it.img+'" class="w-10 h-10 rounded-lg object-cover"><div class="flex-1 min-w-0"><p class="text-sm truncate">'+it.name+'</p><p class="text-xs text-neutral-500">x'+it.qty+'</p></div><p class="text-sm font-medium">'+fmt(it.price*it.qty)+'</p></div>'}
+h+='</div>';
+document.getElementById("trackDetailContent").innerHTML=h;document.getElementById("trackList").classList.add("hidden");document.getElementById("trackDetail").classList.remove("hidden")}
+document.getElementById("btnBackTrack").addEventListener("click",function(){document.getElementById("trackDetail").classList.add("hidden");document.getElementById("trackList").classList.remove("hidden");renderTrackList()});
+document.getElementById("btnTrackNav").addEventListener("click",openTrackMod);document.querySelector(".mob-track").addEventListener("click",function(){mobOpen=false;mobMenu.classList.remove("open");openTrackMod()});
+document.getElementById("btnCloseTrack").addEventListener("click",closeTrackMod);document.getElementById("trackModBg").addEventListener("click",closeTrackMod);
+
+function openSearch(){document.getElementById("searchMod").classList.remove("hidden");document.getElementById("searchInp").focus();pushModal("searchMod")}
+function closeSearch(){document.getElementById("searchMod").classList.add("hidden");popModal("searchMod")}
+document.getElementById("btnSearch").addEventListener("click",openSearch);document.getElementById("btnSearchMob").addEventListener("click",openSearch);
+document.getElementById("btnCloseSearch").addEventListener("click",closeSearch);document.getElementById("searchMod").addEventListener("click",function(e){if(e.target===this)closeSearch()});
+document.getElementById("searchInp").addEventListener("input",function(){var q=this.value.toLowerCase(),rd=document.getElementById("searchRes"),ld=document.getElementById("searchList");if(q.length<2){rd.classList.add("hidden");return}var res=products.filter(function(p){return p.name.toLowerCase().indexOf(q)!==-1||p.cat.indexOf(q)!==-1});rd.classList.remove("hidden");if(!res.length){ld.innerHTML='<p class="text-sm text-neutral-500">Gak ketemu 😢</p>';return}ld.innerHTML=res.slice(0,5).map(function(p){return'<div class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer sri" data-sid="'+p.id+'"><img src="'+p.img+'" class="w-10 h-10 rounded-lg object-cover"><div><p class="text-sm font-medium">'+p.name+'</p><p class="text-xs text-brand-400">'+fmt(p.price)+' • '+stockHtml(getStock(p.id))+'</p></div></div>'}).join("")});
+document.getElementById("searchList").addEventListener("click",function(e){var s=e.target.closest(".sri");if(s){closeSearch();openProd(Number(s.getAttribute("data-sid")))}});
+
+var mobMenu=document.getElementById("mobMenu"),mobOpen=false;
+document.getElementById("btnHamburger").addEventListener("click",function(){mobOpen=!mobOpen;mobMenu.classList.toggle("open",mobOpen)});
+document.querySelectorAll(".mob-link").forEach(function(a){a.addEventListener("click",function(){mobOpen=false;mobMenu.classList.remove("open");var t=document.querySelector(this.getAttribute("href"));if(t)setTimeout(function(){t.scrollIntoView({behavior:"smooth",block:"start"})},100)})});
+
+function updNav(){document.getElementById("navName").textContent=member?member.name.split(" ")[0]:"Masuk"}
+function openM(){if(member){openProf();return}document.getElementById("memberMod").classList.remove("hidden");pushModal("memberMod")}
+function closeM(){document.getElementById("memberMod").classList.add("hidden");popModal("memberMod")}
+function openProf(){if(!member)return;var t=getTier(member.points),c=TIER[t];document.getElementById("pName").textContent=member.name;document.getElementById("pAvatar").textContent=member.name.charAt(0).toUpperCase();document.getElementById("pPts").textContent=member.points.toLocaleString();document.getElementById("pTier").innerHTML='<iconify-icon icon="lucide:award" width="12"></iconify-icon> '+c.n+' ('+c.disc+'%)';var pct=t==="platinum"?100:((member.points-c.mn)/(c.mx-c.mn))*100;document.getElementById("pBar").style.width=Math.min(pct,100)+"%";document.getElementById("pNext").textContent=t==="platinum"?"Tier tertinggi! 🏆":(c.mx-member.points).toLocaleString()+" pts ke "+TIER[Object.keys(TIER)[Object.keys(TIER).indexOf(t)+1]].n;document.getElementById("pOrders").textContent=member.orders||0;document.getElementById("pSpend").textContent=fmtShort(member.totalSpend||0);document.getElementById("pVouchers").textContent=member.vouchers||1;document.getElementById("profMod").classList.remove("hidden");pushModal("profMod")}
+function closeProf(){document.getElementById("profMod").classList.add("hidden");popModal("profMod")}
+document.getElementById("btnMember").addEventListener("click",openM);document.getElementById("btnMemberMob").addEventListener("click",openM);document.getElementById("btnJoin").addEventListener("click",openM);document.getElementById("btnCloseMember").addEventListener("click",closeM);document.getElementById("memberModBg").addEventListener("click",closeM);document.getElementById("btnCloseProf").addEventListener("click",closeProf);document.getElementById("profModBg").addEventListener("click",closeProf);document.getElementById("btnProfTrack").addEventListener("click",function(){closeProf();openTrackMod()});
+document.getElementById("tabLogin").addEventListener("click",function(){this.className="flex-1 py-4 text-sm font-medium text-brand-400 border-b-2 border-brand-400";document.getElementById("tabReg").className="flex-1 py-4 text-sm font-medium text-neutral-500 border-b-2 border-transparent";document.getElementById("formLogin").classList.remove("hidden");document.getElementById("formReg").classList.add("hidden")});
+document.getElementById("tabReg").addEventListener("click",function(){this.className="flex-1 py-4 text-sm font-medium text-brand-400 border-b-2 border-brand-400";document.getElementById("tabLogin").className="flex-1 py-4 text-sm font-medium text-neutral-500 border-b-2 border-transparent";document.getElementById("formReg").classList.remove("hidden");document.getElementById("formLogin").classList.add("hidden")});
+document.getElementById("toReg").addEventListener("click",function(){document.getElementById("tabReg").click()});document.getElementById("toLog").addEventListener("click",function(){document.getElementById("tabLogin").click()});
+document.getElementById("btnLogin").addEventListener("click",function(){var e=document.getElementById("logEmail").value.trim(),p=document.getElementById("logPass").value;if(!e||!p){msg("Lengkapi form!");return}member={name:e.split("@")[0],email:e,points:500,totalSpend:0,orders:0,vouchers:1};localStorage.setItem("mebel_m",JSON.stringify(member));closeM();updNav();updCart();render();msg("Welcome! 👋 500 pts")});
+document.getElementById("btnReg").addEventListener("click",function(){var n=document.getElementById("regName").value.trim(),e=document.getElementById("regEmail").value.trim(),ph=document.getElementById("regPhone").value.trim(),pw=document.getElementById("regPass").value;if(!n||!e||!ph||!pw){msg("Lengkapi semua!");return}if(pw.length<6){msg("Password min 6!");return}member={name:n,email:e,phone:ph,points:500,totalSpend:0,orders:0,vouchers:1};localStorage.setItem("mebel_m",JSON.stringify(member));closeM();updNav();updCart();render();msg("Selamat bergabung! 🎉 500 pts!")});
+document.getElementById("btnLogout").addEventListener("click",function(){member=null;localStorage.removeItem("mebel_m");closeProf();updNav();updCart();render();msg("Sampai jumpa! 👋")});
+
+document.getElementById("contactForm").addEventListener("submit",function(e){e.preventDefault();msg("Pesan terkirim! 📬");this.reset()});
+var selFbStar=0,fbMediaData=null;
+document.getElementById("fbStars").addEventListener("click",function(e){var btn=e.target.closest(".star-btn");if(!btn)return;selFbStar=Number(btn.getAttribute("data-fb"));this.querySelectorAll(".star-btn").forEach(function(b){b.classList.toggle("on",Number(b.getAttribute("data-fb"))<=selFbStar)})});
+document.getElementById("fbFile").addEventListener("change",function(e){
+var file=e.target.files[0];if(!file)return;
+if(file.size>2*1024*1024){msg("File maks 2MB!");this.value="";return}
+var preview=document.getElementById("fbMediaPreview");preview.classList.remove("hidden");
+if(file.type.startsWith("image/")){var reader=new FileReader();reader.onload=function(ev){fbMediaData={type:"image",data:ev.target.result};preview.innerHTML='<div class="relative inline-block"><img src="'+ev.target.result+'" class="h-20 rounded-lg object-cover"><button class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center" id="removeFbMedia"><iconify-icon icon="lucide:x" width="10" class="text-white"></iconify-icon></button></div>'};reader.readAsDataURL(file)}
+else if(file.type.startsWith("video/")){var url=URL.createObjectURL(file);fbMediaData={type:"video",data:url,name:file.name};preview.innerHTML='<div class="relative inline-block"><video src="'+url+'" class="h-20 rounded-lg object-cover"></video><p class="text-[10px] text-neutral-500 mt-1">'+file.name+'</p><button class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center" id="removeFbMedia"><iconify-icon icon="lucide:x" width="10" class="text-white"></iconify-icon></button></div>'}
+});
+document.getElementById("fbMediaPreview").addEventListener("click",function(e){var rb=e.target.closest("#removeFbMedia");if(rb){fbMediaData=null;this.innerHTML="";this.classList.add("hidden");document.getElementById("fbFile").value=""}});
+
+function renderFb(){if(!feedbacks.length){document.getElementById("fbDisplay").classList.add("hidden");return}document.getElementById("fbDisplay").classList.remove("hidden");var h="",show=feedbacks.slice(-6).reverse();for(var i=0;i<show.length;i++){var fb=show[i],icon=fb.type==='saran'?'💡':fb.type==='kritik'?'⚠️':fb.type==='pujian'?'👏':'😞';h+='<div class="glass rounded-xl p-5"><div class="flex items-center gap-2 mb-2"><span class="text-lg">'+icon+'</span><span class="text-sm font-medium">'+fb.name+'</span></div><div class="flex gap-0.5 mb-2">';for(var s=1;s<=5;s++)h+='<iconify-icon icon="lucide:star" class="'+(s<=fb.star?"text-yellow-400":"text-neutral-700")+'" width="12"></iconify-icon>';h+='</div><p class="text-neutral-400 text-sm font-light">'+fb.text+'</p>';if(fb.media&&fb.media.type==="image")h+='<img src="'+fb.media.data+'" class="h-24 rounded-lg object-cover mt-2">';h+='</div>'}document.getElementById("fbList").innerHTML=h}
+
+document.getElementById("feedbackForm").addEventListener("submit",function(e){e.preventDefault();var n=document.getElementById("fbName").value.trim(),t=document.getElementById("fbText").value.trim(),tp=document.getElementById("fbType").value;if(!n||!t){msg("Lengkapi feedback!");return}if(!selFbStar){msg("Pilih bintang!");return}
+var fb={name:n,text:t,type:tp,star:selFbStar};if(fbMediaData)fb.media=fbMediaData;
+feedbacks.push(fb);try{localStorage.setItem("mebel_fb",JSON.stringify(feedbacks))}catch(ex){if(feedbacks.length>20)feedbacks=feedbacks.slice(-20);try{localStorage.setItem("mebel_fb",JSON.stringify(feedbacks))}catch(ex2){}}
+msg("Terima kasih atas masukannya! 🙏");this.reset();selFbStar=0;fbMediaData=null;document.querySelectorAll("#fbStars .star-btn").forEach(function(b){b.classList.remove("on")});document.getElementById("fbMediaPreview").innerHTML="";document.getElementById("fbMediaPreview").classList.add("hidden");renderFb()});
+
+window.addEventListener("scroll",function(){document.querySelector("nav").style.borderBottom=window.scrollY>50?"1px solid rgba(255,255,255,.05)":"none"});
+document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();var t=document.querySelector(this.getAttribute("href"));if(t)t.scrollIntoView({behavior:"smooth",block:"start"})})});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&openModals.length){var top=openModals[openModals.length-1];if(top==="prodMod")closeProdM();else if(top==="profMod")closeProf();else if(top==="memberMod")closeM();else if(top==="cart")closeCartM();else if(top==="searchMod")closeSearch();else if(top==="checkMod")closeCheckout();else if(top==="trackMod")closeTrackMod()}});
+
+updNav();updCart();render();renderFb();
+};
+</script>
+</body>
+</html>
